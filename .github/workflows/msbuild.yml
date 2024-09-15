@@ -1,0 +1,41 @@
+name: MSBuild
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Build
+        working-directory: ${{github.workspace}}
+        run: |
+          msbuild packetdelay.vcxproj /p:Configuration=Release /p:Platform=x64 /p:OutDir=.\out\
+          copy README.md .\out\
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@main
+        with:
+          type: zip
+          directory: out
+          filename: ..\packetdelay-${{github.ref_name}}.zip
+          exclusions: '*.ilk *.pdb'
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: packetdelay-${{github.ref_name}}.zip
