@@ -24,6 +24,7 @@ jobs:
         run: |
           msbuild packetdelay.vcxproj /p:Configuration=Release /p:Platform=x64 /p:OutDir=.\out\
           copy README.md .\out\
+          copy LICENSE.txt .\out\
 
       - name: Archive Release
         uses: thedoctor0/zip-release@main
